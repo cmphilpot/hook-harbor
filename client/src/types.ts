@@ -9,4 +9,7 @@ export interface RequestData {
   requestTime: string
   headers: string
   body: string // Use the parsed body type here
+  bodyEncoding: 'utf8' | 'base64'
+  path: string
+  query: Record<string, string | string[]>
 }
