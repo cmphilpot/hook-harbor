@@ -15,6 +15,9 @@ export interface CapturedRequest {
   requestTime: string;
   headers: string; // JSON string of the request headers
   body: string;
+  bodyEncoding: "utf8" | "base64";
+  path: string; // part after /b/:bucketId, e.g. "/orders/42"
+  query: Record<string, string | string[]>;
 }
 
 const buckets = new Map<string, Bucket>();
