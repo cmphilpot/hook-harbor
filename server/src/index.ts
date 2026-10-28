@@ -1,28 +1,17 @@
 import express from "express";
+import morgan from "morgan";
 import path from "node:path";
-import { createBucket, getBucket } from "./store.js";
+import apiRouter from "./routes/api.js";
+import captureRouter from "./routes/capture.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-app.use(express.json());
+app.use(morgan("dev"));
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
-
-app.post("/api/buckets", (_req, res) => {
-  res.status(201).json(createBucket());
-});
-
-app.get("/api/buckets/:id", (req, res) => {
-  const bucket = getBucket(req.params.id);
-  if (!bucket) {
-    res.status(404).json({ error: "Bucket not found" });
-    return;
-  }
-  res.json(bucket);
-});
+// Body parsing is set per router: JSON for the API, raw bytes for captures
+app.use("/api", apiRouter);
+app.use("/b", captureRouter);
 
 // In production, serve the built React app
 if (process.env.NODE_ENV === "production") {
