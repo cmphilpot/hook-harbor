@@ -1,44 +1,17 @@
-import { useEffect, useState } from 'react'
-import { createBucket } from './services/bucketServices'
+import { Route, Routes } from 'react-router'
+import BucketPage from './components/BucketPage'
+import Header from './components/Header'
+import HomePage from './components/HomePage'
 
 function App() {
-  const [status, setStatus] = useState('checking...')
-  const [bucketId, setBucketId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then((res) => res.json())
-      .then((data) => setStatus(data.status))
-      .catch(() => setStatus('server unreachable'))
-  }, [])
-
-  async function handleCreateBucket() {
-    setError(null)
-    try {
-      const bucket = await createBucket()
-      setBucketId(bucket.id)
-    } catch (err) {
-      setError(`Could not create bucket: ${(err as Error).message}`)
-    }
-  }
-
-  const captureUrl = bucketId && `${window.location.origin}/b/${bucketId}`
-
   return (
-    <main>
-      <h1>Hook Haven</h1>
-      <p>Server status: {status}</p>
-      <button type="button" onClick={handleCreateBucket}>
-        Create bucket
-      </button>
-      {error && <p>{error}</p>}
-      {captureUrl && (
-        <p>
-          Send requests to: <code>{captureUrl}</code>
-        </p>
-      )}
-    </main>
+    <>
+      <Header />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/buckets/:id" element={<BucketPage />} />
+      </Routes>
+    </>
   )
 }
 
