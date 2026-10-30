@@ -48,16 +48,41 @@ function BucketPage() {
       {error && <p>{error}</p>}
 
       {!error && requests.length === 0 && <p>No requests yet.</p>}
-      <ul>
-        {requests.map((r) => (
-          <li key={r.id}>
-            <button type="button" onClick={() => setSelectedId(r.id)}>
-              <strong>{r.method}</strong> {r.path}{' '}
-              <small>{new Date(r.requestTime).toLocaleString()}</small>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {requests.length > 0 && (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {requests.map((r) => (
+                <tr
+                  key={r.id}
+                  className={r.id === selectedId ? 'clickable selected' : 'clickable'}
+                  onClick={() => setSelectedId(r.id)}
+                >
+                  <td>
+                    <span className="chip">{r.method}</span>
+                  </td>
+                  <td>
+                    {/* A real button so the row works from the keyboard */}
+                    <button type="button" className="link-button">
+                      <code>{r.path}</code>
+                    </button>
+                  </td>
+                  <td className="muted">
+                    {new Date(r.requestTime).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {selected && <RequestDetail request={selected} />}
     </main>
