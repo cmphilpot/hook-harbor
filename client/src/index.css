@@ -1,25 +1,22 @@
+/* Palette and type from specs/style.md. Single committed look (no dark mode). */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --teal: #8fc9c1;
+  --cream: #f4ead5;
+  --coral: #e9715a;
+  --charcoal: #2b2b2e;
+  --white: #ffffff;
+  /* Subtle lift off the charcoal page for code, rows and panels */
+  --surface: rgba(255, 255, 255, 0.07);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: 'Space Grotesk', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Fraunces', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  color-scheme: dark;
+  color: var(--white);
+  background: var(--charcoal);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -30,47 +27,26 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+body {
+  margin: 0;
+  background: var(--charcoal);
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
+  max-width: 1100px;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  padding: 0 max(16px, 4vw) 48px;
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-}
-
 h1,
-h2 {
+h2,
+h3,
+h4 {
   font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+  font-weight: 600;
+  color: var(--white);
 }
 
 h1 {
@@ -95,17 +71,208 @@ p {
   margin: 0;
 }
 
-code,
-.counter {
+/* Links and buttons: teal, flicking to coral on hover */
+a {
+  color: var(--teal);
+  text-decoration: none;
+  transition: color 120ms;
+}
+a:hover {
+  color: var(--coral);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+header a.brand {
+  color: var(--white);
+}
+
+/* Header nav buttons: blend into the page until hovered, then a lighter gray
+   shows their shape (overrides the teal/coral button style) */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+button.nav-button {
+  color: var(--white);
+  background: var(--charcoal);
+}
+button.nav-button:hover,
+.menu:focus-within button.nav-button,
+.menu:hover button.nav-button {
+  background: var(--surface);
+}
+
+/* Header Requests menu: addresses drop down on hover or focus */
+.menu {
+  position: relative;
+}
+.menu-list {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 10;
+  min-width: 180px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--charcoal);
+  border: 2px solid var(--surface);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.menu:hover .menu-list,
+.menu:focus-within .menu-list {
+  display: block;
+}
+.menu-list a {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--white);
+}
+.menu-list a:hover,
+.menu-list a:focus-visible {
+  background: var(--surface);
+  color: var(--coral);
+}
+.menu-list code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+.menu-empty {
+  padding: 8px 12px;
+  opacity: 0.7;
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--charcoal);
+  background: var(--teal);
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 120ms;
+}
+button:hover {
+  background: var(--coral);
+}
+button:focus-visible {
+  outline: 3px solid var(--white);
+  outline-offset: 2px;
+}
+
+/* Destructive action: plain coral text, lightening on hover */
+button.text-danger {
+  background: none;
+  padding: 0;
+  font-weight: 500;
+  color: var(--coral);
+  transition: color 120ms;
+}
+button.text-danger:hover {
+  background: none;
+  color: var(--cream);
+}
+
+/* Button that looks like a link (e.g. a clickable table cell) */
+button.link-button {
+  background: none;
+  padding: 0;
+  font-weight: inherit;
+  color: var(--white);
+  text-align: left;
+}
+button.link-button:hover {
+  background: none;
+  color: var(--coral);
+}
+
+/* HTTP method chip */
+.chip {
+  display: inline-block;
   font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  background: var(--coral);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+/* Tables: no cell lines; spacing and a header row do the work */
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  text-align: left;
+  vertical-align: middle;
+  padding: 10px 12px;
+}
+th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+td.actions,
+th.actions {
+  text-align: right;
+  width: 1%;
+  white-space: nowrap;
+}
+tbody tr.clickable {
+  cursor: pointer;
+}
+tbody tr.clickable:hover,
+tbody tr.selected {
+  background: var(--surface);
+}
+/* Visually hidden, still read by screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.muted {
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
 }
 
 code {
+  font-family: var(--mono);
   font-size: 15px;
   line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--white);
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+
+pre {
+  font-family: var(--mono);
+  background: var(--surface);
+  color: var(--white);
+  padding: 12px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
 }

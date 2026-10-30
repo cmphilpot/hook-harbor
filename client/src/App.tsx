@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router'
 import BucketPage from './components/BucketPage'
 import Header from './components/Header'
 import HomePage from './components/HomePage'
+import RequestsPage from './components/RequestsPage'
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/buckets/:id" element={<BucketPage />} />
+        <Route path="/requests" element={<RequestsPage />} />
       </Routes>
     </>
   )

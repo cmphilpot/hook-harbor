@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { createBucket } from '../services/bucketServices'
 import {
   getSavedBuckets,
@@ -11,6 +11,7 @@ function HomePage() {
   const [bucketId, setBucketId] = useState<string | null>(null)
   const [savedBuckets, setSavedBuckets] = useState(getSavedBuckets)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   async function handleCreateBucket() {
     setError(null)
@@ -33,7 +34,7 @@ function HomePage() {
   return (
     <main>
       <button type="button" onClick={handleCreateBucket}>
-        Create bucket
+        + Create bucket
       </button>
       {error && <p>{error}</p>}
       {bucketId && (
@@ -46,17 +47,50 @@ function HomePage() {
       {savedBuckets.length > 0 && (
         <section>
           <h2>Your buckets</h2>
-          <ul>
-            {savedBuckets.map((b) => (
-              <li key={b.id}>
-                <Link to={`/buckets/${b.id}`}>{b.id}</Link>{' '}
-                <small>created {new Date(b.createdAt).toLocaleString()}</small>{' '}
-                <button type="button" onClick={() => handleRemove(b.id)}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Created</th>
+                  <th className="actions">
+                    <span className="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {savedBuckets.map((b) => (
+                  <tr
+                    key={b.id}
+                    className="clickable"
+                    onClick={() => navigate(`/buckets/${b.id}`)}
+                  >
+                    <td>
+                      <Link to={`/buckets/${b.id}`}>
+                        <code>{b.id}</code>
+                      </Link>
+                    </td>
+                    <td className="muted">
+                      {new Date(b.createdAt).toLocaleString()}
+                    </td>
+                    <td className="actions">
+                      {/* Removes it from this browser's list only */}
+                      <button
+                        type="button"
+                        className="text-danger"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRemove(b.id)
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
     </main>
