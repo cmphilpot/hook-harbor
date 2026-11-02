@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { getRequests } from '../services/bucketServices'
 import { getSavedBuckets } from '../services/savedBuckets'
 import type { RequestData } from '../types'
-import RequestDetail from './RequestDetail'
+import DetailPanel from './DetailPanel'
 
 type Row = RequestData & { bucketId: string }
 
@@ -57,51 +57,54 @@ function RequestsPage() {
       )}
 
       {rows.length > 0 && (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th>Path</th>
-                <th>Address</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr
-                  key={r.id}
-                  className={r.id === selectedId ? 'clickable selected' : 'clickable'}
-                  onClick={() => setSelectedId(r.id)}
-                >
-                  <td>
-                    <span className="chip">{r.method}</span>
-                  </td>
-                  <td>
-                    {/* A real button so the row works from the keyboard */}
-                    <button type="button" className="link-button">
-                      <code>{r.path}</code>
-                    </button>
-                  </td>
-                  <td>
-                    <Link
-                      to={`/buckets/${r.bucketId}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <code>{r.bucketId}</code>
-                    </Link>
-                  </td>
-                  <td className="muted">
-                    {new Date(r.requestTime).toLocaleString()}
-                  </td>
+        <div className="split">
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Path</th>
+                  <th>Address</th>
+                  <th>Created</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr
+                    key={r.id}
+                    className={
+                      r.id === selectedId ? 'clickable selected' : 'clickable'
+                    }
+                    onClick={() => setSelectedId(r.id)}
+                  >
+                    <td>
+                      <span className="chip">{r.method}</span>
+                    </td>
+                    <td>
+                      {/* A real button so the row works from the keyboard */}
+                      <button type="button" className="link-button">
+                        <code>{r.path}</code>
+                      </button>
+                    </td>
+                    <td>
+                      <Link
+                        to={`/buckets/${r.bucketId}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <code>{r.bucketId}</code>
+                      </Link>
+                    </td>
+                    <td className="muted">
+                      {new Date(r.requestTime).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <DetailPanel selected={selected} />
         </div>
       )}
-
-      {selected && <RequestDetail request={selected} />}
     </main>
   )
 }
