@@ -50,7 +50,7 @@ function BucketPage() {
       {!error && requests.length === 0 && <p>No requests yet.</p>}
       {requests.length > 0 && (
         <div className="split">
-          <div className="table-wrap">
+          <div className="table-wrap card">
             <table>
               <thead>
                 <tr>

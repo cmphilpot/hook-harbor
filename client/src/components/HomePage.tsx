@@ -47,7 +47,7 @@ function HomePage() {
       {savedBuckets.length > 0 && (
         <section>
           <h2>Your buckets</h2>
-          <div className="table-wrap">
+          <div className="table-wrap card">
             <table>
               <thead>
                 <tr>

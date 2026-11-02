@@ -223,6 +223,18 @@ button.link-button:hover {
 .table-wrap {
   overflow-x: auto;
 }
+
+/* Card: lifted charcoal panel with a teal outline and hard teal offset shadow
+   (the style guide's charcoal outline wouldn't show on the charcoal page) */
+.card {
+  background: var(--surface);
+  border: 3px solid var(--teal);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 var(--teal);
+  padding: 8px;
+  /* Leave room for the shadow so it isn't flush against what follows */
+  margin-bottom: 6px;
+}
 table {
   border-collapse: collapse;
   width: 100%;

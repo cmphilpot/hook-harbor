@@ -58,7 +58,7 @@ function RequestsPage() {
 
       {rows.length > 0 && (
         <div className="split">
-          <div className="table-wrap">
+          <div className="table-wrap card">
             <table>
               <thead>
                 <tr>
