@@ -4,7 +4,7 @@ import type { Bucket } from '../types'
 // localStorage can be unavailable (e.g. some private windows), so every
 // access is wrapped and failures just mean nothing is remembered.
 
-const KEY = 'hookHaven.buckets'
+const KEY = 'hookHarbor.buckets'
 
 export function getSavedBuckets(): Bucket[] {
   try {

@@ -88,6 +88,17 @@ header {
 }
 header a.brand {
   color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+/* The logo image has wide built-in margins, so it's sized up to compensate */
+.logo {
+  height: 72px;
+  width: auto;
+  @media (max-width: 1024px) {
+    height: 52px;
+  }
 }
 
 /* Header nav buttons: blend into the page until hovered, then a lighter gray
