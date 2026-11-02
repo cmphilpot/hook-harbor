@@ -13,7 +13,9 @@ function Header() {
   return (
     <header>
       <Link to="/" className="brand">
-        <h1>Hook Haven</h1>
+        {/* Decorative: the name next to it is the accessible label */}
+        <img src="/Hook-Harbor-logo.png" alt="" className="logo" />
+        <h1>HookHarbor</h1>
       </Link>
       <nav className="nav">
         <button
