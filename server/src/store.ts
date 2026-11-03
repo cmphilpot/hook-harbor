@@ -1,8 +1,10 @@
+import { ObjectId } from "mongodb";
+import { bodies } from "./db/mongo.js";
 import { pool } from "./db/pool.js";
 import { genId } from "./utils/genId.js";
 
-// Buckets and request metadata live in Postgres. Bodies stay in memory until
-// Step 7 moves them to MongoDB. Routes should only ever talk to these functions.
+// Buckets and request metadata live in Postgres, request bodies in MongoDB.
+// Routes should only ever talk to these functions.
 
 export interface Bucket {
   id: string;
@@ -20,9 +22,6 @@ export interface CapturedRequest {
   query: Record<string, string | string[]>;
 }
 
-// Request bodies by request id; lost on restart until Step 7
-const bodies = new Map<string, string>();
-
 interface RequestRow {
   id: string;
   method: string;
@@ -31,19 +30,20 @@ interface RequestRow {
   query: Record<string, string | string[]>;
   body_encoding: "utf8" | "base64";
   received_at: Date;
+  body_doc_id: string | null; // null for requests saved before Step 7
 }
 
 const REQUEST_COLUMNS =
-  "id, method, path, headers, query, body_encoding, received_at";
+  "id, method, path, headers, query, body_encoding, received_at, body_doc_id";
 
-// Database row → the shape the API has always returned
-function toRequest(row: RequestRow): CapturedRequest {
+// Database row and its MongoDB body → the shape the API has always returned
+function toRequest(row: RequestRow, body: string): CapturedRequest {
   return {
     id: row.id,
     method: row.method,
     requestTime: row.received_at.toISOString(),
     headers: JSON.stringify(row.headers),
-    body: bodies.get(row.id) ?? "",
+    body,
     bodyEncoding: row.body_encoding,
     path: row.path,
     query: row.query,
@@ -77,23 +77,31 @@ export async function addRequest(
   bucketId: string,
   data: Omit<CapturedRequest, "id" | "requestTime">,
 ): Promise<CapturedRequest> {
-  const { rows } = await pool.query<RequestRow>(
-    `INSERT INTO requests (bucket_id, method, path, headers, query, body_encoding)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING ${REQUEST_COLUMNS}`,
-    [
-      bucketId,
-      data.method,
-      data.path,
-      data.headers,
-      // Stringified so pg sends it as JSON (it would turn arrays into Postgres arrays)
-      JSON.stringify(data.query),
-      data.bodyEncoding,
-    ],
-  );
-  const row = rows[0]!;
-  bodies.set(row.id, data.body);
-  return toRequest(row);
+  // Body first, so the Postgres row can point to its document
+  const { insertedId } = await bodies.insertOne({ body: data.body });
+  try {
+    const { rows } = await pool.query<RequestRow>(
+      `INSERT INTO requests
+         (bucket_id, method, path, headers, query, body_encoding, body_doc_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING ${REQUEST_COLUMNS}`,
+      [
+        bucketId,
+        data.method,
+        data.path,
+        data.headers,
+        // Stringified so pg sends it as JSON (it would turn arrays into Postgres arrays)
+        JSON.stringify(data.query),
+        data.bodyEncoding,
+        insertedId.toHexString(),
+      ],
+    );
+    return toRequest(rows[0]!, data.body);
+  } catch (error) {
+    // No row points to the body now, so don't leave it behind
+    await bodies.deleteOne({ _id: insertedId });
+    throw error;
+  }
 }
 
 // Newest first
@@ -104,5 +112,16 @@ export async function getRequests(bucketId: string): Promise<CapturedRequest[]> 
      ORDER BY received_at DESC`,
     [bucketId],
   );
-  return rows.map(toRequest);
+
+  // All of this bucket's bodies in one MongoDB query, not one per request
+  const docIds = rows.flatMap((r) =>
+    r.body_doc_id ? [new ObjectId(r.body_doc_id)] : [],
+  );
+  const docs =
+    docIds.length > 0
+      ? await bodies.find({ _id: { $in: docIds } }).toArray()
+      : [];
+  const bodyById = new Map(docs.map((d) => [d._id.toHexString(), d.body]));
+
+  return rows.map((r) => toRequest(r, bodyById.get(r.body_doc_id ?? "") ?? ""));
 }
