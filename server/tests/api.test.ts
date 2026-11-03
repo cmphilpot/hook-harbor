@@ -1,13 +1,15 @@
+import { ObjectId } from "mongodb";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import app from "../src/app.js";
+import { bodies, mongoClient } from "../src/db/mongo.js";
 import { pool } from "../src/db/pool.js";
 import { initDb } from "../src/db/schema.js";
 
 // Tests import app.ts, not index.ts, so they create the tables themselves.
-// Closing the pool at the end lets Vitest exit.
+// Closing both database connections at the end lets Vitest exit.
 beforeAll(initDb);
-afterAll(() => pool.end());
+afterAll(() => Promise.all([pool.end(), mongoClient.close()]));
 
 // Each test makes its own bucket, since the database keeps data between tests
 async function newBucketId(): Promise<string> {
@@ -144,5 +146,21 @@ describe("Capture", () => {
     expect(saved.rows).toEqual([
       { method: "PUT", path: "/saved", query: { x: "1" } },
     ]);
+  });
+
+  // Follows the link between the databases: the Postgres row's body_doc_id
+  // must point to a MongoDB document holding exactly the body that was sent
+  it("saves the body in MongoDB, linked from the Postgres row", async () => {
+    const id = await newBucketId();
+    await request(app).post(`/b/${id}`).send({ amount: 10 });
+
+    const saved = await pool.query(
+      "SELECT body_doc_id FROM requests WHERE bucket_id = $1",
+      [id],
+    );
+    const doc = await bodies.findOne({
+      _id: new ObjectId(saved.rows[0].body_doc_id),
+    });
+    expect(doc?.body).toBe('{"amount":10}');
   });
 });
