@@ -1,8 +1,15 @@
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import app from "../src/app.js";
+import { pool } from "../src/db/pool.js";
+import { initDb } from "../src/db/schema.js";
 
-// Each test makes its own bucket, since the store keeps data between tests
+// Tests import app.ts, not index.ts, so they create the tables themselves.
+// Closing the pool at the end lets Vitest exit.
+beforeAll(initDb);
+afterAll(() => pool.end());
+
+// Each test makes its own bucket, since the database keeps data between tests
 async function newBucketId(): Promise<string> {
   const res = await request(app).post("/api/buckets");
   return res.body.id;
@@ -118,6 +125,24 @@ describe("Capture", () => {
     expect(list.body.map((r: { path: string }) => r.path)).toEqual([
       "/second",
       "/first",
+    ]);
+  });
+
+  // Reads Postgres directly instead of through the API, to show the request
+  // was saved to the database and not just kept in the server's memory
+  it("saves the bucket and request in Postgres", async () => {
+    const id = await newBucketId();
+    await request(app).put(`/b/${id}/saved?x=1`);
+
+    const bucket = await pool.query("SELECT id FROM buckets WHERE id = $1", [id]);
+    expect(bucket.rows).toHaveLength(1);
+
+    const saved = await pool.query(
+      "SELECT method, path, query FROM requests WHERE bucket_id = $1",
+      [id],
+    );
+    expect(saved.rows).toEqual([
+      { method: "PUT", path: "/saved", query: { x: "1" } },
     ]);
   });
 });
