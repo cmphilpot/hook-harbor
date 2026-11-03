@@ -17,5 +17,21 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql
 
+  mongo:
+    image: mongo:8
+    container_name: hook-harbor-mongo
+    restart: unless-stopped
+    # Dev-only credentials; server/.env's MONGO_URL must match them
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: hookharbor
+      MONGO_INITDB_ROOT_PASSWORD: hookharbor
+    # Bound to 127.0.0.1 so only this machine can reach it
+    ports:
+      - "127.0.0.1:27017:27017"
+    # Named volume keeps the data through `docker compose down`
+    volumes:
+      - mongo-data:/data/db
+
 volumes:
   postgres-data:
+  mongo-data:
