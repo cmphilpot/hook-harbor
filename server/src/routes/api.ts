@@ -9,12 +9,12 @@ router.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-router.post("/buckets", (_req, res) => {
-  res.status(201).json(createBucket());
+router.post("/buckets", async (_req, res) => {
+  res.status(201).json(await createBucket());
 });
 
-router.get("/buckets/:id", (req, res) => {
-  const bucket = getBucket(req.params.id);
+router.get("/buckets/:id", async (req, res) => {
+  const bucket = await getBucket(req.params.id);
   if (!bucket) {
     res.status(404).json({ error: "Bucket not found" });
     return;
@@ -22,12 +22,12 @@ router.get("/buckets/:id", (req, res) => {
   res.json(bucket);
 });
 
-router.get("/buckets/:id/requests", (req, res) => {
-  if (!getBucket(req.params.id)) {
+router.get("/buckets/:id/requests", async (req, res) => {
+  if (!(await getBucket(req.params.id))) {
     res.status(404).json({ error: "Bucket not found" });
     return;
   }
-  res.json(getRequests(req.params.id));
+  res.json(await getRequests(req.params.id));
 });
 
 export default router;
