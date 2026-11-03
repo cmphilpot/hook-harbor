@@ -1,0 +1,21 @@
+# Local development databases only; the app itself runs with `npm run dev`.
+# Start: docker compose -f docker-compose.dev.yml up -d
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: hook-harbor-postgres
+    restart: unless-stopped
+    # Dev-only credentials; server/.env's DATABASE_URL must match them
+    environment:
+      POSTGRES_USER: hookharbor
+      POSTGRES_PASSWORD: hookharbor
+      POSTGRES_DB: hookharbor
+    # Bound to 127.0.0.1 so only this machine can reach it
+    ports:
+      - "127.0.0.1:5432:5432"
+    # Named volume keeps the data through `docker compose down`
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+volumes:
+  postgres-data:
