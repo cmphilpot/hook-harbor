@@ -11,9 +11,9 @@ const TEXT_TYPES =
 router.use(express.raw({ type: "*/*", limit: "1mb" }));
 
 // Matches /b/:bucketId and anything after it, for any method
-router.all("/:bucketId{/*rest}", (req, res) => {
+router.all("/:bucketId{/*rest}", async (req, res) => {
   const { bucketId } = req.params;
-  if (!getBucket(bucketId)) {
+  if (!(await getBucket(bucketId))) {
     res.status(404).json({ error: "Bucket not found" });
     return;
   }
@@ -22,7 +22,7 @@ router.all("/:bucketId{/*rest}", (req, res) => {
   const isText =
     raw.length === 0 || TEXT_TYPES.test(req.get("content-type") ?? "");
 
-  addRequest(bucketId, {
+  await addRequest(bucketId, {
     method: req.method,
     headers: JSON.stringify(req.headers),
     body: raw.toString(isText ? "utf8" : "base64"),
