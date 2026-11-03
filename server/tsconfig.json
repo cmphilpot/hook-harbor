@@ -1,5 +1,7 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
+  // Only the app is built; tests in tests/ are run by Vitest
+  "include": ["src"],
   "compilerOptions": {
     // File Layout
     "rootDir": "./src",
