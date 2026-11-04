@@ -10,7 +10,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/buckets/:id" element={<BucketPage />} />
+        <Route path="/piers/:id" element={<BucketPage />} />
         <Route path="/requests" element={<RequestsPage />} />
       </Routes>
     </>

@@ -7,8 +7,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': 'http://localhost:3000',
-      // Trailing slash so the /buckets/... page isn't proxied too
-      '/b/': 'http://localhost:3000',
+      // Trailing slash so the /piers/... page isn't proxied too
+      '/p/': 'http://localhost:3000',
     },
   },
 })

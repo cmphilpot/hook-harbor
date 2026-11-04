@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== "test") {
 
 // Body parsing is set per router: JSON for the API, raw bytes for captures
 app.use("/api", apiRouter);
-app.use("/b", captureRouter);
+app.use("/p", captureRouter);
 
 // In production, serve the built React app
 if (process.env.NODE_ENV === "production") {

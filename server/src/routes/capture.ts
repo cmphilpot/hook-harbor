@@ -10,11 +10,12 @@ const TEXT_TYPES =
 // Keep the body exactly as sent, whatever its content type
 router.use(express.raw({ type: "*/*", limit: "1mb" }));
 
-// Matches /b/:bucketId and anything after it, for any method
+// Mounted at /p in app.ts, so this matches /p/<id> and anything after it, for
+// any method. Users see "piers"; the code keeps the name "bucket".
 router.all("/:bucketId{/*rest}", async (req, res) => {
   const { bucketId } = req.params;
   if (!(await getBucket(bucketId))) {
-    res.status(404).json({ error: "Bucket not found" });
+    res.status(404).json({ error: "Pier not found" });
     return;
   }
 

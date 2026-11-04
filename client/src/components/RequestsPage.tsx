@@ -48,7 +48,7 @@ function RequestsPage() {
 
       {!hasSavedBuckets && (
         <p>
-          No saved buckets yet. <Link to="/">Create one</Link> to start
+          No saved piers yet. <Link to="/">Create one</Link> to start
           capturing requests.
         </p>
       )}
@@ -88,7 +88,7 @@ function RequestsPage() {
                     </td>
                     <td>
                       <Link
-                        to={`/buckets/${r.bucketId}`}
+                        to={`/piers/${r.bucketId}`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <code>{r.bucketId}</code>

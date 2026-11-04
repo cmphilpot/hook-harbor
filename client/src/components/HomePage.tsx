@@ -18,9 +18,9 @@ function HomePage() {
     try {
       const bucket = await createBucket()
       saveBucket(bucket)
-      navigate(`/buckets/${bucket.id}`)
+      navigate(`/piers/${bucket.id}`)
     } catch (err) {
-      setError(`Could not create bucket: ${(err as Error).message}`)
+      setError(`Could not create pier: ${(err as Error).message}`)
     }
   }
 
@@ -31,7 +31,7 @@ function HomePage() {
 
   const createButton = (
     <button type="button" onClick={handleCreateBucket}>
-      + Create bucket
+      + Create pier
     </button>
   )
 
@@ -42,9 +42,9 @@ function HomePage() {
       {savedBuckets.length === 0 ? (
         // The only Create button while there are no buckets
         <section className="empty-state">
-          <h2>No buckets yet</h2>
+          <h2>No piers yet</h2>
           <p>
-            Create a bucket to get a capture URL, then point any HTTP client at
+            Create a pier to get a capture URL, then point any HTTP client at
             it.
           </p>
           {createButton}
@@ -54,9 +54,9 @@ function HomePage() {
           {/* Title and description on the left, Create button on the right */}
           <div className="section-header">
             <div>
-              <h2>Your buckets</h2>
+              <h2>Your piers</h2>
               <p className="section-description">
-                Each bucket is a URL that captures every request sent to it.
+                Each pier is a URL that captures every request sent to it.
               </p>
             </div>
             {createButton}
@@ -77,10 +77,10 @@ function HomePage() {
                   <tr
                     key={b.id}
                     className="clickable"
-                    onClick={() => navigate(`/buckets/${b.id}`)}
+                    onClick={() => navigate(`/piers/${b.id}`)}
                   >
                     <td>
-                      <Link to={`/buckets/${b.id}`}>
+                      <Link to={`/piers/${b.id}`}>
                         <code>{b.id}</code>
                       </Link>
                     </td>
