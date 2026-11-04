@@ -18,7 +18,7 @@ export interface CapturedRequest {
   headers: string; // JSON string of the request headers
   body: string;
   bodyEncoding: "utf8" | "base64";
-  path: string; // part after /b/:bucketId, e.g. "/orders/42"
+  path: string; // part after /p/:bucketId, e.g. "/orders/42"
   query: Record<string, string | string[]>;
 }
 

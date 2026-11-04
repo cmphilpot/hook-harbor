@@ -35,15 +35,15 @@ function Header() {
             Requests
           </button>
           <ul className="menu-list">
-            {/* Labels the addresses below: each opens that bucket's requests */}
-            <li className="menu-heading">Buckets</li>
+            {/* Labels the addresses below: each opens that pier's requests */}
+            <li className="menu-heading">Piers</li>
             {buckets.length === 0 ? (
               <li className="menu-empty">None yet</li>
             ) : (
               buckets.map((b) => (
                 <li key={b.id}>
                   <Link
-                    to={`/buckets/${b.id}`}
+                    to={`/piers/${b.id}`}
                     // Drop focus so the menu closes after choosing
                     onClick={(e) => e.currentTarget.blur()}
                   >

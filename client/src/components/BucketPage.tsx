@@ -28,7 +28,7 @@ function BucketPage() {
         if (cancelled) return
         setError(
           err.message === 'HTTP 404'
-            ? 'Bucket not found'
+            ? 'Pier not found'
             : `Could not load requests: ${err.message}`,
         )
       })
@@ -38,7 +38,7 @@ function BucketPage() {
   }, [id, reloadKey])
 
   const selected = requests.find((r) => r.id === selectedId)
-  const captureUrl = `${window.location.origin}/b/${id}`
+  const captureUrl = `${window.location.origin}/p/${id}`
 
   // The browser only allows this on HTTPS pages and localhost
   async function handleCopy() {
@@ -53,10 +53,10 @@ function BucketPage() {
 
   return (
     <main>
-      {/* Bucket ID on the left, Refresh on the right */}
+      {/* Pier ID on the left, Refresh on the right */}
       <div className="section-header">
         <h2>
-          <span className="sr-only">Bucket </span>
+          <span className="sr-only">Pier </span>
           <span className="bucket-id">{id}</span>
         </h2>
         <button type="button" onClick={() => setReloadKey((k) => k + 1)}>
@@ -123,7 +123,7 @@ function BucketPage() {
         <section className="empty-state">
           <h2>No requests captured yet</h2>
           <p>
-            Send any HTTP request to this bucket's capture URL and it will
+            Send any HTTP request to this pier's capture URL and it will
             appear here.
           </p>
           <code className="capture-url">{captureUrl}</code>

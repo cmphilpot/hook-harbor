@@ -13,7 +13,7 @@ afterAll(() => Promise.all([pool.end(), mongoClient.close()]));
 
 // Each test makes its own bucket, since the database keeps data between tests
 async function newBucketId(): Promise<string> {
-  const res = await request(app).post("/api/buckets");
+  const res = await request(app).post("/api/piers");
   return res.body.id;
 }
 
@@ -25,7 +25,7 @@ describe("API", () => {
   });
 
   it("creates a bucket with an 8-character id", async () => {
-    const res = await request(app).post("/api/buckets");
+    const res = await request(app).post("/api/piers");
     expect(res.status).toBe(201);
     expect(res.body.id).toMatch(/^[0-9a-zA-Z\-._~]{8}$/);
     expect(new Date(res.body.createdAt).toString()).not.toBe("Invalid Date");
@@ -33,21 +33,21 @@ describe("API", () => {
 
   it("gets a bucket by id", async () => {
     const id = await newBucketId();
-    const res = await request(app).get(`/api/buckets/${id}`);
+    const res = await request(app).get(`/api/piers/${id}`);
     expect(res.status).toBe(200);
     expect(res.body.id).toBe(id);
   });
 
   it("returns 404 for an unknown bucket", async () => {
-    const res = await request(app).get("/api/buckets/nope1234");
+    const res = await request(app).get("/api/piers/nope1234");
     expect(res.status).toBe(404);
-    const requests = await request(app).get("/api/buckets/nope1234/requests");
+    const requests = await request(app).get("/api/piers/nope1234/requests");
     expect(requests.status).toBe(404);
   });
 
   it("starts a new bucket with no requests", async () => {
     const id = await newBucketId();
-    const res = await request(app).get(`/api/buckets/${id}/requests`);
+    const res = await request(app).get(`/api/piers/${id}/requests`);
     expect(res.status).toBe(200);
     expect(res.body).toEqual([]);
   });
@@ -55,14 +55,16 @@ describe("API", () => {
 
 describe("Capture", () => {
   it("returns 404 for an unknown bucket", async () => {
-    const res = await request(app).post("/b/nope1234").send({ a: 1 });
+    const res = await request(app).post("/p/nope1234").send({ a: 1 });
     expect(res.status).toBe(404);
+    // Senders see this, so it uses the user-facing name
+    expect(res.body).toEqual({ error: "Pier not found" });
   });
 
   // /orders/42?status=paid is a made-up example of what a store might send for
   // an order webhook ("order 42 was paid"); any path and query would do. It has
   // both so one request tests the trickiest part of capture.ts, splitting the
-  // URL /b/<id>/orders/42?status=paid into:
+  // URL /p/<id>/orders/42?status=paid into:
   //   - path "/orders/42": the bucket id cut off the front and nothing more
   //     (an off-by-one slice would give "rders/42" or "<id>/orders/42")
   //   - query { status: "paid" }: kept separately, not left in the path
@@ -71,12 +73,12 @@ describe("Capture", () => {
   it("captures method, path, query, headers and a JSON body", async () => {
     const id = await newBucketId();
     const res = await request(app)
-      .post(`/b/${id}/orders/42?status=paid`)
+      .post(`/p/${id}/orders/42?status=paid`)
       .set("X-Test", "hello")
       .send({ amount: 10 });
     expect(res.body).toEqual({ received: true });
 
-    const list = await request(app).get(`/api/buckets/${id}/requests`);
+    const list = await request(app).get(`/api/piers/${id}/requests`);
     expect(list.body).toHaveLength(1);
     const captured = list.body[0];
     expect(captured.method).toBe("POST");
@@ -89,8 +91,8 @@ describe("Capture", () => {
 
   it("records a request to the bucket root with path /", async () => {
     const id = await newBucketId();
-    await request(app).get(`/b/${id}`);
-    const list = await request(app).get(`/api/buckets/${id}/requests`);
+    await request(app).get(`/p/${id}`);
+    const list = await request(app).get(`/api/piers/${id}/requests`);
     expect(list.body[0].method).toBe("GET");
     expect(list.body[0].path).toBe("/");
     expect(list.body[0].body).toBe("");
@@ -107,23 +109,23 @@ describe("Capture", () => {
     const id = await newBucketId();
     const bytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0xff]);
     await request(app)
-      .post(`/b/${id}`)
+      .post(`/p/${id}`)
       .set("Content-Type", "application/octet-stream")
       .send(bytes);
 
-    const list = await request(app).get(`/api/buckets/${id}/requests`);
+    const list = await request(app).get(`/api/piers/${id}/requests`);
     expect(list.body[0].bodyEncoding).toBe("base64");
     expect(Buffer.from(list.body[0].body, "base64")).toEqual(bytes);
   });
 
   it("lists requests newest first", async () => {
     const id = await newBucketId();
-    await request(app).post(`/b/${id}/first`);
+    await request(app).post(`/p/${id}/first`);
     // Make sure the second request gets a later timestamp
     await new Promise((resolve) => setTimeout(resolve, 5));
-    await request(app).post(`/b/${id}/second`);
+    await request(app).post(`/p/${id}/second`);
 
-    const list = await request(app).get(`/api/buckets/${id}/requests`);
+    const list = await request(app).get(`/api/piers/${id}/requests`);
     expect(list.body.map((r: { path: string }) => r.path)).toEqual([
       "/second",
       "/first",
@@ -134,7 +136,7 @@ describe("Capture", () => {
   // was saved to the database and not just kept in the server's memory
   it("saves the bucket and request in Postgres", async () => {
     const id = await newBucketId();
-    await request(app).put(`/b/${id}/saved?x=1`);
+    await request(app).put(`/p/${id}/saved?x=1`);
 
     const bucket = await pool.query("SELECT id FROM buckets WHERE id = $1", [id]);
     expect(bucket.rows).toHaveLength(1);
@@ -152,7 +154,7 @@ describe("Capture", () => {
   // must point to a MongoDB document holding exactly the body that was sent
   it("saves the body in MongoDB, linked from the Postgres row", async () => {
     const id = await newBucketId();
-    await request(app).post(`/b/${id}`).send({ amount: 10 });
+    await request(app).post(`/p/${id}`).send({ amount: 10 });
 
     const saved = await pool.query(
       "SELECT body_doc_id FROM requests WHERE bucket_id = $1",
