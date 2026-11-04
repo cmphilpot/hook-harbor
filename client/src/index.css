@@ -246,6 +246,59 @@ button.link-button:hover {
   opacity: 0.8;
 }
 
+/* Bucket page: the ID as its title, in coral */
+.bucket-id {
+  font-family: var(--mono);
+  color: var(--coral);
+  overflow-wrap: anywhere;
+}
+
+/* Capture URL card: label and URL left, Copy button right */
+.capture-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+/* min-width: 0 lets the long URL wrap instead of pushing the button off */
+.capture-text {
+  flex: 1;
+  min-width: 0;
+}
+.capture-label {
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+.capture-url {
+  color: var(--coral);
+}
+.capture-card button {
+  flex-shrink: 0;
+}
+
+/* Plain button: teal symbol and label, a soft highlight behind on hover */
+button.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  color: var(--teal);
+  background: none;
+  transition: background 120ms, color 120ms;
+}
+button.icon-button:hover {
+  background: var(--surface);
+  color: var(--white);
+}
+
 /* Shown instead of a table when there's nothing to list yet */
 .empty-state {
   display: flex;

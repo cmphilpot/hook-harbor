@@ -8,18 +8,17 @@ import {
 } from '../services/savedBuckets'
 
 function HomePage() {
-  const [bucketId, setBucketId] = useState<string | null>(null)
   const [savedBuckets, setSavedBuckets] = useState(getSavedBuckets)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
 
+  // Saves the new bucket to this browser's list, then opens its page
   async function handleCreateBucket() {
     setError(null)
     try {
       const bucket = await createBucket()
       saveBucket(bucket)
-      setSavedBuckets(getSavedBuckets())
-      setBucketId(bucket.id)
+      navigate(`/buckets/${bucket.id}`)
     } catch (err) {
       setError(`Could not create bucket: ${(err as Error).message}`)
     }
@@ -28,7 +27,6 @@ function HomePage() {
   function handleRemove(id: string) {
     removeBucket(id)
     setSavedBuckets(getSavedBuckets())
-    if (id === bucketId) setBucketId(null)
   }
 
   const createButton = (
@@ -40,12 +38,6 @@ function HomePage() {
   return (
     <main>
       {error && <p>{error}</p>}
-      {bucketId && (
-        <p>
-          Send requests to: <code>{`${window.location.origin}/b/${bucketId}`}</code>{' '}
-          <Link to={`/buckets/${bucketId}`}>View bucket</Link>
-        </p>
-      )}
 
       {savedBuckets.length === 0 ? (
         // The only Create button while there are no buckets
