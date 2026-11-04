@@ -1,14 +1,75 @@
+# Production: the app and its databases. The droplet's existing nginx container
+# (on the shared `web` network) forwards hookharbor.chasephilpot.com to `app`.
+# Start: docker compose up -d --build   (passwords come from .env, see .env.example)
+
+# Own project name, so these containers and volumes never mix with the ones
+# from docker-compose.dev.yml, which lives in the same folder
+name: hook-harbor
+
 services:
   app:
     build: .
-    container_name: hook-haven
+    # nginx reaches the app by this name (set $upstream http://hook-harbor:3000)
+    container_name: hook-harbor
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 3000
+      DATABASE_URL: postgres://hookharbor:${POSTGRES_PASSWORD}@postgres:5432/hookharbor
+      MONGO_URL: mongodb://hookharbor:${MONGO_PASSWORD}@mongo:27017/?authSource=admin
+    # Only reachable from this machine: http://localhost:8080 locally, or a
+    # quick curl on the droplet. Public traffic comes through nginx instead.
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:3000"
     networks:
       - web
+      - backend
+    # Wait until both databases accept connections, so startup doesn't fail
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hookharbor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: hookharbor
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "hookharbor", "-d", "hookharbor"]
+      interval: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: hookharbor
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?Set MONGO_PASSWORD in .env}
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 10
 
 networks:
+  # Shared with the droplet's nginx; created outside this file
   web:
     external: true
+  # App ↔ databases only; internal means no outside access in either direction
+  backend:
+    internal: true
+
+volumes:
+  postgres-data:
+  mongo-data:
