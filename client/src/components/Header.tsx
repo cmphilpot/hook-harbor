@@ -35,8 +35,10 @@ function Header() {
             Requests
           </button>
           <ul className="menu-list">
+            {/* Labels the addresses below: each opens that bucket's requests */}
+            <li className="menu-heading">Buckets</li>
             {buckets.length === 0 ? (
-              <li className="menu-empty">No saved buckets</li>
+              <li className="menu-empty">None yet</li>
             ) : (
               buckets.map((b) => (
                 <li key={b.id}>
