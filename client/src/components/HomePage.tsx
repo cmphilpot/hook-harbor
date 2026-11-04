@@ -31,11 +31,14 @@ function HomePage() {
     if (id === bucketId) setBucketId(null)
   }
 
+  const createButton = (
+    <button type="button" onClick={handleCreateBucket}>
+      + Create bucket
+    </button>
+  )
+
   return (
     <main>
-      <button type="button" onClick={handleCreateBucket}>
-        + Create bucket
-      </button>
       {error && <p>{error}</p>}
       {bucketId && (
         <p>
@@ -44,9 +47,28 @@ function HomePage() {
         </p>
       )}
 
-      {savedBuckets.length > 0 && (
+      {savedBuckets.length === 0 ? (
+        // The only Create button while there are no buckets
+        <section className="empty-state">
+          <h2>No buckets yet</h2>
+          <p>
+            Create a bucket to get a capture URL, then point any HTTP client at
+            it.
+          </p>
+          {createButton}
+        </section>
+      ) : (
         <section>
-          <h2>Your buckets</h2>
+          {/* Title and description on the left, Create button on the right */}
+          <div className="section-header">
+            <div>
+              <h2>Your buckets</h2>
+              <p className="section-description">
+                Each bucket is a URL that captures every request sent to it.
+              </p>
+            </div>
+            {createButton}
+          </div>
           <div className="table-wrap card">
             <table>
               <thead>
