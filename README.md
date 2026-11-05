@@ -113,6 +113,8 @@ Open `/piers/JkxfzK29` in the browser, or:
 curl https://hookharbor.chasephilpot.com/api/piers/JkxfzK29/requests
 ```
 
+<img width="1116" height="402" alt="pier request" src="https://github.com/user-attachments/assets/398a8004-d51c-4fb8-a7c1-e218c7cf20aa" />
+
 Example response (headers shortened):
 
 ```json
