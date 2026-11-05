@@ -17,9 +17,9 @@ It lets developers capture, inspect and debug HTTP requests with ease. Each pier
 
 ## How it works
 
-1. Create a pier on the home page. It gets a random 8-character ID (for example `XnsLjS2W`).
-2. Send any HTTP request to its capture URL, `/p/XnsLjS2W`. Anything after the ID is recorded as the path, so `/p/XnsLjS2W/orders/42` works too. Use curl, Postman or a real webhook.
-3. Open the pier's page, `/piers/XnsLjS2W`, and click **Refresh** to see each captured request with its headers and body.
+1. Create a pier on the home page. It gets a random 8-character ID (for example `JkxfzK29`).
+2. Send any HTTP request to its capture URL, `/p/JkxfzK29`. Anything after the ID is recorded as the path, so `/p/JkxfzK29/orders/42` works too. Use curl, Postman or a real webhook.
+3. Open the pier's page, `/piers/JkxfzK29`, and click **Refresh** to see each captured request with its headers and body.
 
 ## Technologies
 
@@ -60,7 +60,7 @@ The body is saved to MongoDB first, then the metadata to PostgreSQL. If the Post
 ### Piers
 
 `POST /api/piers` creates a new pier.
-- Response: `201 Created` with the new pier, e.g. `{"id":"XnsLjS2W","createdAt":"2026-11-05T11:18:10.580Z"}`
+- Response: `201 Created` with the new pier, e.g. `{"id":"JkxfzK29","createdAt":"2026-11-05T11:18:10.580Z"}`
 
 `GET /api/piers/:id` gets a pier.
 - Response: the pier, or `404` with `{"error":"Pier not found"}`
@@ -77,7 +77,7 @@ The body is saved to MongoDB first, then the metadata to PostgreSQL. If the Post
 
 ## Example usage
 
-The examples below use a pier with the ID `XnsLjS2W`. Real IDs are randomly generated.
+The examples below use a pier with the ID `JkxfzK29`. Real IDs are randomly generated.
 
 ### Creating a pier
 
@@ -90,13 +90,15 @@ curl -X POST https://hookharbor.chasephilpot.com/api/piers
 Example response:
 
 ```json
-{ "id": "XnsLjS2W", "createdAt": "2026-11-05T11:18:10.580Z" }
+{ "id": "JkxfzK29", "createdAt": "2026-11-05T11:18:10.580Z" }
 ```
+
+<img width="1084" height="392" alt="create pier" src="https://github.com/user-attachments/assets/ae63a04f-78b4-466d-bfd7-b57303fcbcc0" />
 
 ### Sending requests to a pier
 
 ```sh
-curl -X POST https://hookharbor.chasephilpot.com/p/XnsLjS2W \
+curl -X POST https://hookharbor.chasephilpot.com/p/JkxfzK29 \
   -H "Content-Type: application/json" \
   -d '{"hello": "POST request from me to you"}'
 ```
@@ -105,10 +107,10 @@ Example response: `{"received":true}`
 
 ### Viewing a pier's requests
 
-Open `/piers/XnsLjS2W` in the browser, or:
+Open `/piers/JkxfzK29` in the browser, or:
 
 ```sh
-curl https://hookharbor.chasephilpot.com/api/piers/XnsLjS2W/requests
+curl https://hookharbor.chasephilpot.com/api/piers/JkxfzK29/requests
 ```
 
 Example response (headers shortened):
